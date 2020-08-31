@@ -1,6 +1,6 @@
-const Sequelize = require('sequelize');
+const Sequelize = require('sequelize')
 
-const sequelize = require('../util/database');
+const sequelize = require('../util/database')
 
 const OrderItem = sequelize.define('orderItem', {
   id: {
@@ -10,6 +10,6 @@ const OrderItem = sequelize.define('orderItem', {
     primaryKey: true
   },
   quantity: Sequelize.INTEGER
-});
+})
 
-module.exports = OrderItem;
+module.exports = OrderItem
