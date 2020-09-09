@@ -30,7 +30,7 @@ class Product {
       })
   }
 
-  static fecthAll() {
+  static fetchAll() {
     const db = getDb();
     return db.collection('products')
       .find()

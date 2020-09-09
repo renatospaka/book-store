@@ -54,17 +54,17 @@ exports.postEditProduct = (req, res, next) => {
   const updatedDesc = req.body.description;
 
   const product = new Product(
-      updatedTitle, 
-      updatedPrice, 
-      updatedDesc, 
-      updatedImageUrl, 
-      prodId)
+    updatedTitle,
+    updatedPrice,
+    updatedDesc,
+    updatedImageUrl,
+    prodId)
   product.save()
-  .then(result => {
-    console.log('UPDATED PRODUCT!');
-    res.redirect('/admin/products');
-  })
-  .catch(err => console.log(err));
+    .then(result => {
+      console.log('UPDATED PRODUCT!');
+      res.redirect('/admin/products');
+    })
+    .catch(err => console.log(err));
 };
 
 exports.getProducts = (req, res, next) => {

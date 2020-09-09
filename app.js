@@ -21,10 +21,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => {
   User.findById('5f4f9d19261eea577a111b96')
     .then(user => {
-      req.user = user;
+      req.user = new User(user.name, user.email, user.cart, user._id);
       next();
     })
-    .catch(err => console.log(err));
+    .catch(err => console.log('app.js => User.findById', err));
 });
 
 app.use('/admin', adminRoutes);
