@@ -18,16 +18,67 @@ class User {
   }
 
   addToCart(product) {
-    // const cartProduct = this.cart.item.findIndex(cp => {
-    //   return cp._id === product._id;
-    // });
+    const cartProductIndex = this.cart.items.findIndex(cp => {
+      return cp.productId.toString() === product._id.toString();
+    });
 
-    const updatedCart = { items: [{productId: new ObjectId(product._id), quantity: 1 }] };
+    let newQuantity = 1;
+    const updatedCartItems = [...this.cart.items];
+
+      // atualiza o carrinho
+    if (cartProductIndex >= 0) {
+      newQuantity = this.cart.items[cartProductIndex].quantity + 1;
+      updatedCartItems[cartProductIndex].quantity = newQuantity;
+    } 
+    // cria o item no carrinho
+    else {
+      updatedCartItems.push({
+        productId: new ObjectId(product._id), 
+        quantity: newQuantity 
+      });
+    }
+    
+    // tem o carrinho atualizado, seja novo, seja existente
+    const updatedCart = { items: updatedCartItems };
+
     const db = getDb();
     return db.collection('users')
       .updateOne(
         { _id: new ObjectId(this._id) },
         { $set: {cart: updatedCart} }
+      );
+  }
+
+  getCart() {
+    // return this.cart; // não é uma coleção, a relação é 1 (usuário) <=> 1 (carrinho)
+    const db = getDb();
+    const productIds = this.cart.items.map(i => {return i.productId});
+
+    return db.collection('products').
+      find({ _id: { $in: productIds }})
+      .toArray()
+      .then(products => {
+        return products.map(prod => {
+          return {
+            ...prod, 
+            quantity: this.cart.items.find(it => {
+              return it.productId.toString() === prod._id.toString();
+            }).quantity
+          };
+        });
+      });
+  }
+
+  deleteFromCart(productId) {
+    const updatedCartItems = this.cart.items.filter(item => {
+      return item.productId.toString() !== productId.toString();
+    });
+    
+    const db = getDb();
+    return db.collection('users')
+      .updateOne(
+        { _id: new ObjectId(this._id) },
+        { $set: { cart: { items: updatedCartItems} } }
       );
   }
 
