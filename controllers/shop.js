@@ -1,4 +1,5 @@
 const Product = require('../models/product');
+const Order = require('../models/order');
 const user = require('../models/user');
 
 exports.getProducts = (req, res, next) => {
@@ -77,7 +78,21 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-  req.user.addOrder()
+  req.user.populate('cart.items.productId')
+    .execPopulate() //populate doesn't raise a promisse, execPopulate does
+    .then(user => {
+      const products = user.cart.items.map(i => {
+        return { quantity: i.quantity, product: i.productId };
+      });    
+      const order = new Order({
+        user: {
+          name: req.user.name,
+          userId: req.user
+        },
+        products: products
+      });
+      return order.save();
+    })
     .then(result => {
       res.redirect('/orders');
     })
