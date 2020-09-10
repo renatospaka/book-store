@@ -82,7 +82,7 @@ exports.postOrder = (req, res, next) => {
     .execPopulate() //populate doesn't raise a promisse, execPopulate does
     .then(user => {
       const products = user.cart.items.map(i => {
-        return { quantity: i.quantity, product: i.productId };
+        return { quantity: i.quantity, product: { ...i.productId._doc } }; // ._doc é um método do mongoose para popular informações de um documento
       });    
       const order = new Order({
         user: {
@@ -94,6 +94,9 @@ exports.postOrder = (req, res, next) => {
       return order.save();
     })
     .then(result => {
+      return req.user.clearCart();
+    })
+    .then(() => {
       res.redirect('/orders');
     })
     .catch(err => console.log('postOrder: ', err));
