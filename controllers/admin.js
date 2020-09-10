@@ -8,6 +8,20 @@ exports.getAddProduct = (req, res, next) => {
   });
 };
 
+exports.getProducts = (req, res, next) => {
+  Product.find()
+    // .select('title price -_id')
+    // .populate('userId', 'name')
+    .then((products) => {
+      res.render("admin/products", {
+        prods: products,
+        pageTitle: "Admin Products",
+        path: "/admin/products",
+      });
+    })
+    .catch((err) => console.log("getProducts: ", err));
+};
+
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
@@ -18,6 +32,7 @@ exports.postAddProduct = (req, res, next) => {
     price: price,
     description: description,
     imageUrl: imageUrl,
+    userId: req.user  //mongoose stores the entire object and picks the needed property: req.user._id
   });
   product
     .save()
@@ -72,18 +87,6 @@ exports.postEditProduct = (req, res, next) => {
       res.redirect("/admin/products");
     })
     .catch((err) => console.log("postEditProduct: ", err));
-};
-
-exports.getProducts = (req, res, next) => {
-  Product.find()
-    .then((products) => {
-      res.render("admin/products", {
-        prods: products,
-        pageTitle: "Admin Products",
-        path: "/admin/products",
-      });
-    })
-    .catch((err) => console.log("getProducts: ", err));
 };
 
 exports.postDeleteProduct = (req, res, next) => {
