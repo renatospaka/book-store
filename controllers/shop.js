@@ -23,7 +23,7 @@ exports.getProduct = (req, res, next) => {
         path: '/products'
       })
     })
-    .catch(err => console.log(err))
+    .catch(err => console.log('getProduct: ', err))
 }
 
 exports.getIndex = (req, res, next) => {
@@ -35,7 +35,7 @@ exports.getIndex = (req, res, next) => {
         path: '/'
       })
     })
-    .catch(err => console.log(err))
+    .catch(err => console.log('getIndex: ', err))
 };
 
 exports.getCart = (req, res, next) => {
@@ -72,41 +72,21 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-  let fetchedCart;
-  req.user.getCart()
-    .then(cart => {
-      fetchedCart = cart;
-      return cart.getProducts();
-    })
-    .then(products => {
-      return req.user
-        .createOrder()
-        .then(order => {
-          return order.addProduct(
-            products.map(product => {
-              product.orderItem = { quantity: product.cartItem.quantity }
-              return product
-            })
-          )
-        })
-        .catch(err => console.log(err))
-    })
+  req.user.addOrder()
     .then(result => {
-      return fetchedCart.setProducts(null)
+      res.redirect('/orders');
     })
-    .then(result => {
-      require.redirect('/orders')
-    })
-    .catch(err => console.log(err))
+    .catch(err => console.log('postOrder: ', err));
 }
 
 exports.getOrders = (req, res, next) => {
-  req.user.getOrders({include: ['products']})
+  req.user.getOrders()
   .then(orders => {
     res.render('shop/orders', {
       path: '/orders',
-      pageTitle: 'Your Orders'
-    })
+      pageTitle: 'Your Orders',
+      orders: orders
+    });
   })
-  .catch(err => console.log(err))
+  .catch(err => console.log('getOrders: ', err))
 }
