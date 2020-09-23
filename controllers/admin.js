@@ -34,7 +34,7 @@ exports.postAddProduct = (req, res, next) => {
     price: price,
     description: description,
     imageUrl: imageUrl,
-    userId: req.session.user  //mongoose stores the entire object and picks the needed property: req.user._id
+    userId: req.user  //mongoose stores the entire object and picks the needed property: req.user._id
   });
   product
     .save()

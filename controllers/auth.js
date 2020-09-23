@@ -8,14 +8,22 @@ exports.getLogin = (req, res, next) => {
   });
 };
 
-exports.postLogin = (req, res, next) => {
-  
+exports.postLogin = (req, res, next) => {  
   User.findById('5f5a54185ebfc65c0df6d445')
     .then(user => {
       req.session.user = user;
       req.session.isLoggedIn = true;
-      res.redirect('/');
+      req.session.save(err => {
+        console.log('postLogin: ', err);
+        res.redirect('/');
+      })
     })
-    .catch(err => console.log('app.js => User.findById', err));  
+    .catch(err => console.log('postLogin: ', err));  
 };
 
+exports.postLogout = (req, res, next) => {
+  req.session.destroy((err) => {
+    console.log('postLogout: ', err)
+    res.redirect('/');
+  });
+};
