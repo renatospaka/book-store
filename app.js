@@ -35,13 +35,17 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
-  User.findById('5f5a54185ebfc65c0df6d445')
-    .then(user => {
-      req.user = user;
+app.use((req, res, next) => {  
+  if (!req.session.user) {
+    return next();
+  }
+
+  User.findById(req.session.user._id)
+    .then(userMongo => {
+      req.user = userMongo;
       next();
     })
-    .catch(err => console.log('app.js => User.findById', err));
+    .catch(err => console.log('app.js => User.findById', err));  
 });
 
 app.use('/admin', adminRoutes);
