@@ -6,6 +6,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const csrf = require('csurf');
+
 const MongoDBStore = require('connect-mongodb-session')(session);
 
 const errorController = require('./controllers/error');
@@ -16,6 +18,9 @@ const mongoSessionStore = new MongoDBStore({
   uri: MONGODB_URI,
   collection: 'sessions'
 });
+
+// csurf can store key secret to encrypt files, etc. Here it will be used with default values
+const csrfProtect = csrf();
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
@@ -34,6 +39,7 @@ app.use(
     store: mongoSessionStore
   })
 );
+app.use(csrfProtect);
 
 app.use((req, res, next) => {  
   if (!req.session.user) {
@@ -46,6 +52,15 @@ app.use((req, res, next) => {
       next();
     })
     .catch(err => console.log('app.js => User.findById', err));  
+});
+
+//add protection to all routes
+// locals is a set of variables that only exists in views that are rendered
+// must be set after session and before routes are set
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
 });
 
 app.use('/admin', adminRoutes);
