@@ -56,20 +56,6 @@ app.use(errorController.get404);
 
 mongoose.connect(MONGODB_URI)
   .then(result => {
-    //adicinoa um usuário
-    User.findOne().then(user => {
-      if (!user) {
-        const user = new User({
-          name: 'Renato',
-          email: 'renato@email.com',
-          cart: {
-            items: []
-          }
-        });
-        user.save();
-      }
-    });
-  
     //inicia o servidor
     app.listen(3000);
   })
