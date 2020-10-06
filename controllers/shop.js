@@ -1,11 +1,10 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
-const user = require('../models/user');
 
 exports.getProducts = (req, res, next) => {
   Product.find()
     .then(products => {
-      //console.log('getProducts: ', products);
+      console.log(products);
       res.render('shop/product-list', {
         prods: products,
         pageTitle: 'All Products',
@@ -13,12 +12,13 @@ exports.getProducts = (req, res, next) => {
         isAuthenticated: req.session.isLoggedIn
       });
     })
-    .catch(err => console.log('getProducts: ', err));
-}
+    .catch(err => {
+      console.log(err);
+    });
+};
 
 exports.getProduct = (req, res, next) => {
-  const prodId = req.params.productId
-
+  const prodId = req.params.productId;
   Product.findById(prodId)
     .then(product => {
       res.render('shop/product-detail', {
@@ -26,28 +26,30 @@ exports.getProduct = (req, res, next) => {
         pageTitle: product.title,
         path: '/products',
         isAuthenticated: req.session.isLoggedIn
-      })
+      });
     })
-    .catch(err => console.log('getProduct: ', err))
-}
+    .catch(err => console.log(err));
+};
 
 exports.getIndex = (req, res, next) => {
   Product.find()
     .then(products => {
-      //console.log('getIndex: ', products);
       res.render('shop/index', {
         prods: products,
         pageTitle: 'Shop',
         path: '/',
         isAuthenticated: req.session.isLoggedIn
-      })
+      });
     })
-    .catch(err => console.log('getIndex: ', err))
+    .catch(err => {
+      console.log(err);
+    });
 };
 
 exports.getCart = (req, res, next) => {
-  req.user.populate('cart.items.productId')
-    .execPopulate() //populate doesn't raise a promisse, execPopulate does
+  req.user
+    .populate('cart.items.productId')
+    .execPopulate()
     .then(user => {
       const products = user.cart.items;
       res.render('shop/cart', {
@@ -57,37 +59,39 @@ exports.getCart = (req, res, next) => {
         isAuthenticated: req.session.isLoggedIn
       });
     })
-    .catch(err => console.log('getCart: ', err));
+    .catch(err => console.log(err));
 };
 
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
   Product.findById(prodId)
     .then(product => {
-      return req.user.addToCart(product);      
+      return req.user.addToCart(product);
     })
     .then(result => {
-      console.log('postCart: ', result);
+      console.log(result);
       res.redirect('/cart');
     });
-}
+};
 
 exports.postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  req.user.removeFromCart(prodId)
+  req.user
+    .removeFromCart(prodId)
     .then(result => {
-      res.redirect('/cart')
+      res.redirect('/cart');
     })
-    .catch(err => console.log('postCartDeleteProduct: ', err));
+    .catch(err => console.log(err));
 };
 
 exports.postOrder = (req, res, next) => {
-  req.user.populate('cart.items.productId')
-    .execPopulate() //populate doesn't raise a promisse, execPopulate does
+  req.user
+    .populate('cart.items.productId')
+    .execPopulate()
     .then(user => {
       const products = user.cart.items.map(i => {
-        return { quantity: i.quantity, product: { ...i.productId._doc } }; // ._doc é um método do mongoose para popular informações de um documento
-      });    
+        return { quantity: i.quantity, product: { ...i.productId._doc } };
+      });
       const order = new Order({
         user: {
           name: req.user.name,
@@ -103,8 +107,8 @@ exports.postOrder = (req, res, next) => {
     .then(() => {
       res.redirect('/orders');
     })
-    .catch(err => console.log('postOrder: ', err));
-}
+    .catch(err => console.log(err));
+};
 
 exports.getOrders = (req, res, next) => {
   Order.find({ 'user.userId': req.user._id })
@@ -116,5 +120,5 @@ exports.getOrders = (req, res, next) => {
         isAuthenticated: req.session.isLoggedIn
       });
     })
-    .catch(err => console.log('getOrders: ', err));
-}
+    .catch(err => console.log(err));
+};
