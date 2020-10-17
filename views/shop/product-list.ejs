@@ -16,7 +16,9 @@
                                     </h1>
                                 </header>
                                 <div class="card__image">
-                                    <img src="<%= product.imageUrl %>" alt="<%= product.title %>">
+                                    <img src="/<%= product.imageUrl %>" alt="<%= product.title %>">
+                                    <!-- putting this "/" at the beggining changes it to the absolute path, 
+                                        not appended to the relative path (route)-->
                                 </div>
                                 <div class="card__content">
                                     <h2 class="product__price">$
