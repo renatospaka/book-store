@@ -53,7 +53,9 @@ app.use((req, res, next) => {
       req.user = userMongo;
       next();
     })
-    .catch(err => console.log('app.js => User.findById', err));  
+    .catch(err => {
+      throw new Error(err);
+    });  
 });
 
 //add protection to all routes
@@ -69,7 +71,13 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
+app.use('/500', errorController.get500);
 app.use(errorController.get404);
+
+app.use((error, req, res, next) => {
+  //res.status(error.httpStatusCode).render('...')
+  res.redirect('/500')
+});
 
 mongoose.connect(MONGODB_URI)
   .then(result => {
