@@ -43,7 +43,17 @@ app.use(
 app.use(csrfProtect);
 app.use(flash());
 
+//add protection to all routes
+// locals is a set of variables that only exists in views that are rendered
+// must be set after session and before routes are set
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
+
 app.use((req, res, next) => {  
+  //throw new Error('Sync Dummy Error'); //cexecutes for every coming request, causes infini loop here
   if (!req.session.user) {
     return next();
   }
@@ -54,17 +64,9 @@ app.use((req, res, next) => {
       next();
     })
     .catch(err => {
-      throw new Error(err);
+      // use this approach inside promises, callbacks, asynchronous code
+      next(new Error(err));
     });  
-});
-
-//add protection to all routes
-// locals is a set of variables that only exists in views that are rendered
-// must be set after session and before routes are set
-app.use((req, res, next) => {
-  res.locals.isAuthenticated = req.session.isLoggedIn;
-  res.locals.csrfToken = req.csrfToken();
-  next();
 });
 
 app.use('/admin', adminRoutes);
@@ -76,7 +78,12 @@ app.use(errorController.get404);
 
 app.use((error, req, res, next) => {
   //res.status(error.httpStatusCode).render('...')
-  res.redirect('/500')
+  //res.redirect('/500')
+  res.status(404).render('500', {
+    pageTitle: 'Error!',
+    path: '/500',
+    isAuthenticated: req.session.isLoggedIn
+  });
 });
 
 mongoose.connect(MONGODB_URI)
