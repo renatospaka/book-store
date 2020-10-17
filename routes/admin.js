@@ -17,30 +17,19 @@ router.get('/products', isAuth, adminController.getProducts);
 // /admin/add-product => POST
 router.post('/add-product', 
   [
-    body('title')
-      .trim()
-      .isString()
-      .isLength({ min: 3 }),
-    body('imageUrl').isURL(),
+    body('title').trim().isString().isLength({ min: 3 }),
     body('price').isFloat(),
-    body('description')
-      .isLength({ min: 5, max: 400 })
-      .trim()
+    body('description').isLength({ min: 5, max: 400 }).trim()
   ], 
-  isAuth, adminController.postAddProduct
+  isAuth, 
+  adminController.postAddProduct
 );
 
 router.get('/edit-product/:productId',  
   [
-    body('title')  
-      .trim()
-      .isString()
-      .isLength({ min: 3 }),
-    body('imageUrl').isURL(),
+    body('title').trim().isString().isLength({ min: 3 }),
     body('price').isFloat(),
-    body('description')
-      .isLength({ min: 5, max: 400 })
-      .trim()
+    body('description').isLength({ min: 5, max: 400 }).trim()
   ], 
   isAuth, 
   adminController.getEditProduct
